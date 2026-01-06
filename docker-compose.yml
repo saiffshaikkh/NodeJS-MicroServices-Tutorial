@@ -15,6 +15,20 @@ services:
       - ./user-service:/app
       - /app/node_modules
 
+  task-service:
+    container_name: task-task-service
+    build: ./task-service
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - MONGO_URI=mongodb://mongo:27017/task-service
+    depends_on:
+      - mongo
+    volumes:
+      - ./task-service:/app
+      - /app/node_modules
+
   mongo:
     container_name: task-mongo-db
     image: mongo
