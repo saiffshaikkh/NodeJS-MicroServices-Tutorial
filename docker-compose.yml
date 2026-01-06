@@ -1,6 +1,15 @@
 version: "3.8"
 
 services:
+  rabbitmq:
+    container_name: task-rabbitmq
+    image: rabbitmq:3-management # Includes the web UI
+    ports:
+      - "5672:5672" # Message port
+      - "15672:15672" # Web UI port (http://localhost:15672)
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+
   user-service:
     container_name: task-user-service
     build: ./user-service
@@ -23,8 +32,10 @@ services:
     environment:
       - PORT=3001
       - MONGO_URI=mongodb://mongo:27017/task-service
+      - RABBITMQ_URI=amqp://rabbitmq
     depends_on:
       - mongo
+      - rabbitmq
     volumes:
       - ./task-service:/app
       - /app/node_modules
@@ -39,3 +50,4 @@ services:
 
 volumes:
   mongo-data:
+  rabbitmq-data:

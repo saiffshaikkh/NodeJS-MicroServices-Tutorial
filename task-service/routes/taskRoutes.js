@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Task = require("../models/Task");
+const amqp = require("amqplib");
 
 router.post("/tasks", async (req, res) => {
   try {
@@ -16,6 +17,12 @@ router.post("/tasks", async (req, res) => {
     });
 
     await task.save();
+
+    const message = { taskId: task._id, userId, title };
+    const channel = getChannel();
+    if (channel) {
+      channel.sendToQueue("task_queue", Buffer.from(JSON.stringify(message)));
+    }
     res.status(201).json(task);
   } catch (error) {
     console.log(error);
